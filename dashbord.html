@@ -1,112 +1,74 @@
+
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jana Terra Photo - Fotografia com Sensibilidade</title>
+    <title>Dashboard do Cliente - Jana Terra Photo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap');
         
-        :root {
-            --earth-beige: #F5E9D9;
-            --earth-brown: #A38F72;
-            --earth-olive: #7A9B76;
-            --earth-terracotta: #D77A61;
-        }
-        
-        .hero-image {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+        .dashboard-header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
             background-size: cover;
             background-position: center;
-            height: 70vh;
+            height: 40vh;
+        }
+        
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #D77A61;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
         }
         
         .gallery-item {
             transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         
         .gallery-item:hover {
             transform: scale(1.02);
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
         }
         
-        .client-area-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-            background: var(--earth-olive);
-            color: white;
-            border-radius: 50%;
-            width: 70px;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            animation: pulse 2s infinite;
-        }
-        
-        .client-area-btn:hover {
-            transform: scale(1.1);
-            background: var(--earth-terracotta);
-        }
-        
-        .client-area-btn i {
-            font-size: 1.8rem;
-        }
-        
-        .client-area-btn span {
+        .gallery-item .overlay {
             position: absolute;
-            top: -10px;
-            right: -10px;
-            background: var(--earth-terracotta);
-            color: white;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(122, 155, 118, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(122, 155, 118, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(122, 155, 118, 0); }
-        }
-        
-        .login-modal {
-            display: none;
-            position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
         }
         
-        .login-content {
-            background: white;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 400px;
-            padding: 30px;
-            position: relative;
-            animation: modalAppear 0.4s ease;
-        }
-        
-        @keyframes modalAppear {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .gallery-item:hover .overlay {
+            transform: translateY(0);
         }
     </style>
     <script>
@@ -119,6 +81,7 @@
                             brown: '#A38F72',
                             olive: '#7A9B76',
                             terracotta: '#D77A61',
+                            dark: '#5D534A'
                         }
                     },
                     fontFamily: {
@@ -130,207 +93,258 @@
         }
     </script>
 </head>
-<body class="font-sans bg-earth-beige text-earth-brown">
-    <!-- Botão de Área do Cliente -->
-    <a href="#" id="client-area-btn" class="client-area-btn">
-        <i class="fas fa-user"></i>
-        <span>3</span>
-    </a>
-    
-    <!-- Modal de Login -->
-    <div id="login-modal" class="login-modal">
-        <div class="login-content">
-            <button id="close-modal" class="absolute top-4 right-4 text-earth-brown hover:text-earth-terracotta">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2 class="text-2xl font-serif font-bold mb-6 text-center text-earth-olive">Área do Cliente</h2>
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label for="login-email" class="block text-sm font-medium mb-1">E-mail</label>
-                    <input type="email" id="login-email" name="email" required class="w-full px-4 py-2 border border-earth-brown rounded focus:outline-none focus:ring-2 focus:ring-earth-olive">
-                </div>
-                <div>
-                    <label for="login-password" class="block text-sm font-medium mb-1">Senha</label>
-                    <input type="password" id="login-password" name="password" required class="w-full px-4 py-2 border border-earth-brown rounded focus:outline-none focus:ring-2 focus:ring-earth-olive">
-                </div>
-                <div class="flex items-center">
-                    <input type="checkbox" id="remember" name="remember" class="mr-2">
-                    <label for="remember">Lembrar-me</label>
-                </div>
-                <button type="submit" class="w-full bg-earth-olive text-white px-6 py-2 rounded hover:bg-earth-brown transition font-medium">Entrar</button>
-                <div class="text-center mt-4">
-                    <a href="#" class="text-earth-terracotta hover:underline">Esqueci minha senha</a>
-                </div>
-            </form>
-            <div class="mt-6 text-center border-t pt-4">
-                <p class="text-earth-brown mb-2">Ainda não tem acesso?</p>
-                <a href="#" class="bg-earth-beige text-earth-terracotta hover:bg-earth-brown hover:text-white px-4 py-2 rounded transition">Solicitar acesso</a>
-            </div>
-        </div>
-    </div>
-    
+<body class="font-sans bg-earth-beige text-earth-dark">
     <!-- Header -->
     <header class="sticky top-0 z-50 bg-white shadow-md">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <a href="#" class="text-2xl font-serif font-bold text-earth-olive">Jana Terra Photo</a>
             <nav class="hidden md:flex space-x-6">
-                <a href="#home" class="hover:text-earth-terracotta transition">Início</a>
-                <a href="#about" class="hover:text-earth-terracotta transition">Sobre</a>
-                <a href="#services" class="hover:text-earth-terracotta transition">Serviços</a>
-                <a href="#portfolio" class="hover:text-earth-terracotta transition">Portfólio</a>
-                <a href="#contact" class="hover:text-earth-terracotta transition">Contato</a>
-                <!-- Link para Área do Cliente -->
-                <a href="dashboard.html" class="bg-earth-olive text-white px-4 py-2 rounded hover:bg-earth-brown transition">Área do Cliente</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Início</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Sessões</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Galeria</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Histórico</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Configurações</a>
             </nav>
-            <button id="mobile-menu-button" class="md:hidden text-earth-brown">
-                <i class="fas fa-2x fa-bars"></i>
-            </button>
-        </div>
-        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
-            <div class="container mx-auto px-4 py-3 flex flex-col space-y-2">
-                <a href="#home" class="hover:text-earth-terracotta py-2 border-b">Início</a>
-                <a href="#about" class="hover:text-earth-terracotta py-2 border-b">Sobre</a>
-                <a href="#services" class="hover:text-earth-terracotta py-2 border-b">Serviços</a>
-                <a href="#portfolio" class="hover:text-earth-terracotta py-2 border-b">Portfólio</a>
-                <a href="#contact" class="hover:text-earth-terracotta py-2 border-b">Contato</a>
-                <!-- Link para Área do Cliente no menu móvel -->
-                <a href="dashboard.html" class="bg-earth-olive text-white px-4 py-2 rounded text-center hover:bg-earth-brown transition mt-2">Área do Cliente</a>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button id="notification-btn" class="text-earth-dark hover:text-earth-terracotta">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+                <div class="relative">
+                    <button id="profile-btn" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-earth-olive flex items-center justify-center text-white">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="hidden md:inline">Maria Silva</span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero-image flex items-center justify-center text-center text-white">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header flex items-center justify-center text-center text-white">
         <div class="container mx-auto px-4">
-            <h1 class="text-3xl md:text-5xl font-serif font-bold mb-4">Momentos com Sensibilidade</h1>
-            <p class="text-lg md:text-xl mb-6 max-w-2xl mx-auto">Fotografia profissional que captura a emoção dos seus momentos especiais.</p>
-            <button id="contact-button" class="bg-earth-terracotta hover:bg-earth-brown text-white px-6 py-2 rounded-full font-medium transition mr-3">Agendar Sessão</button>
-            <a href="dashboard.html" class="bg-earth-olive hover:bg-earth-brown text-white px-6 py-2 rounded-full font-medium transition inline-flex items-center">
-                <i class="fas fa-user mr-2"></i> Acessar Área do Cliente
-            </a>
+            <h1 class="text-3xl md:text-4xl font-serif font-bold mb-4">Área do Cliente</h1>
+            <p class="text-lg md:text-xl mb-6 max-w-2xl mx-auto">Bem-vinda, Maria! Aqui você gerencia suas sessões e fotos</p>
         </div>
-    </section>
+    </div>
 
-    <!-- About Section -->
-    <section id="about" class="py-12 bg-white">
+    <!-- Dashboard Stats -->
+    <section class="py-8">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-serif font-bold mb-6 text-earth-olive text-center">Sobre Jana Terra</h2>
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 mb-6 md:mb-0 md:pr-6">
-                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=688&q=80" alt="Jana Terra" class="rounded-lg shadow-md w-full">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="stat-card bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-earth-terracotta mb-2">2</div>
+                    <div class="text-lg font-medium text-earth-olive">Sessões Agendadas</div>
                 </div>
-                <div class="md:w-1/2">
-                    <p class="text-lg mb-4">Olá, sou Jana! Fotógrafa apaixonada por capturar a essência de momentos reais, com um olhar sensível e delicado.</p>
-                    <p class="text-lg mb-4">Meu trabalho é mais do que fotos — é sobre preservar memórias que emocionam e atravessam gerações.</p>
-                    <p class="text-lg font-semibold text-earth-terracotta">Clientes, acessem sua área exclusiva para ver suas fotos e gerenciar sessões!</p>
-                    <a href="dashboard.html" class="inline-block mt-3 bg-earth-olive text-white px-6 py-2 rounded hover:bg-earth-brown transition font-medium">
-                        <i class="fas fa-user mr-2"></i> Ir para Área do Cliente
-                    </a>
+                <div class="stat-card bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-earth-terracotta mb-2">48</div>
+                    <div class="text-lg font-medium text-earth-olive">Fotos Disponíveis</div>
+                </div>
+                <div class="stat-card bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-earth-terracotta mb-2">3</div>
+                    <div class="text-lg font-medium text-earth-olive">Albuns Criados</div>
+                </div>
+                <div class="stat-card bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-earth-terracotta mb-2">12</div>
+                    <div class="text-lg font-medium text-earth-olive">Fotos Favoritas</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Services Section -->
-    <section id="services" class="py-12 bg-earth-beige">
+    <!-- Main Dashboard Content -->
+    <section class="py-8">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-serif font-bold mb-8 text-center text-earth-olive">Serviços</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="w-16 h-16 mx-auto bg-earth-beige rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-baby text-earth-terracotta text-2xl"></i>
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Left Column -->
+                <div class="lg:w-7/12 space-y-8">
+                    <!-- Upcoming Sessions -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-serif font-bold text-earth-olive">Próximas Sessões</h2>
+                            <button class="text-earth-terracotta hover:text-earth-brown">
+                                <i class="fas fa-plus"></i> Agendar Nova
+                            </button>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-lg">Sessão de Casal</h3>
+                                        <p class="text-earth-terracotta flex items-center">
+                                            <i class="fas fa-calendar-alt mr-2"></i> 15 de Julho de 2025
+                                        </p>
+                                        <p class="text-earth-brown flex items-center">
+                                            <i class="fas fa-clock mr-2"></i> 14:00 - 16:00
+                                        </p>
+                                        <p class="text-earth-olive flex items-center">
+                                            <i class="fas fa-map-marker-alt mr-2"></i> Parque Central
+                                        </p>
+                                    </div>
+                                    <span class="bg-earth-beige text-earth-terracotta px-3 py-1 rounded-full text-sm">Confirmada</span>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="bg-earth-terracotta hover:bg-earth-brown text-white px-4 py-2 rounded mr-2">
+                                        <i class="fas fa-edit mr-1"></i> Editar
+                                    </button>
+                                    <button class="border border-earth-terracotta text-earth-terracotta hover:bg-earth-terracotta hover:text-white px-4 py-2 rounded">
+                                        <i class="fas fa-times mr-1"></i> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-lg">Acompanhamento Infantil</h3>
+                                        <p class="text-earth-terracotta flex items-center">
+                                            <i class="fas fa-calendar-alt mr-2"></i> 22 de Agosto de 2025
+                                        </p>
+                                        <p class="text-earth-brown flex items-center">
+                                            <i class="fas fa-clock mr-2"></i> 10:00 - 11:30
+                                        </p>
+                                        <p class="text-earth-olive flex items-center">
+                                            <i class="fas fa-map-marker-alt mr-2"></i> Estúdio Jana Terra
+                                        </p>
+                                    </div>
+                                    <span class="bg-earth-beige text-earth-olive px-3 py-1 rounded-full text-sm">Agendada</span>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="bg-earth-terracotta hover:bg-earth-brown text-white px-4 py-2 rounded mr-2">
+                                        <i class="fas fa-edit mr-1"></i> Editar
+                                    </button>
+                                    <button class="border border-earth-terracotta text-earth-terracotta hover:bg-earth-terracotta hover:text-white px-4 py-2 rounded">
+                                        <i class="fas fa-times mr-1"></i> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-serif font-bold mb-3 text-earth-olive">Acompanhamento Infantil</h3>
-                    <p>Capturando os primeiros sorrisos e descobertas do seu bebê.</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="w-16 h-16 mx-auto bg-earth-beige rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-heart text-earth-terracotta text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-serif font-bold mb-3 text-earth-olive">Ensaios</h3>
-                    <p>Fotos que celebram o amor, a gravidez ou a família com emoção.</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                    <div class="w-16 h-16 mx-auto bg-earth-beige rounded-full flex items-center justify-center mb-4">
-                        <i class="fas fa-glass-cheers text-earth-terracotta text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-serif font-bold mb-3 text-earth-olive">Eventos</h3>
-                    <p>Registro completo de festas, formaturas e momentos especiais.</p>
-                </div>
-            </div>
-            
-            <div class="mt-12 bg-white rounded-lg shadow-md p-6 text-center max-w-3xl mx-auto">
-                <h3 class="text-xl font-serif font-bold mb-4 text-earth-terracotta">Clientes Exclusivos</h3>
-                <p class="mb-4">Nossos clientes têm acesso a uma área exclusiva para visualizar suas fotos, gerenciar sessões e muito mais.</p>
-                <a href="dashboard.html" class="bg-earth-olive text-white px-6 py-2 rounded hover:bg-earth-brown transition font-medium">
-                    <i class="fas fa-lock mr-2"></i> Acessar Área do Cliente
-                </a>
-            </div>
-        </div>
-    </section>
 
-    <!-- Portfolio Section -->
-    <section id="portfolio" class="py-12 bg-white">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-serif font-bold mb-8 text-center text-earth-olive">Portfólio</h2>
-            <div class="flex justify-center mb-6 flex-wrap gap-2">
-                <button data-category="all" class="portfolio-filter px-4 py-2 text-sm font-medium rounded-l-lg border border-earth-olive bg-earth-olive text-white">Todos</button>
-                <button data-category="infantil" class="portfolio-filter px-4 py-2 text-sm font-medium border border-earth-olive hover:bg-earth-beige">Infantil</button>
-                <button data-category="casais" class="portfolio-filter px-4 py-2 text-sm font-medium border border-earth-olive hover:bg-earth-beige">Casais</button>
-                <button data-category="eventos" class="portfolio-filter px-4 py-2 text-sm font-medium border border-earth-olive hover:bg-earth-beige">Eventos</button>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="portfolio-gallery"></div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-12 bg-earth-beige">
-        <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-serif font-bold mb-8 text-center text-earth-olive">Entre em Contato</h2>
-            <div class="flex flex-col md:flex-row gap-8">
-                <div class="md:w-1/2">
-                    <form id="contact-form" class="space-y-4">
-                        <div>
-                            <label for="name" class="block text-sm font-medium mb-1">Nome</label>
-                            <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-earth-brown rounded focus:outline-none focus:ring-2 focus:ring-earth-olive">
+                    <!-- Recent Photos -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-serif font-bold text-earth-olive">Fotos Recentes</h2>
+                            <button class="text-earth-terracotta hover:text-earth-brown">
+                                Ver todas <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
                         </div>
-                        <div>
-                            <label for="email" class="block text-sm font-medium mb-1">E-mail</label>
-                            <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-earth-brown rounded focus:outline-none focus:ring-2 focus:ring-earth-olive">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            <div class="gallery-item rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=688&q=80" alt="Foto recente" class="w-full h-40 object-cover">
+                                <div class="overlay">
+                                    <div class="flex justify-between items-center">
+                                        <span>Sessão Família</span>
+                                        <a href="#" download class="text-white hover:text-earth-terracotta">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gallery-item rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=687&q=80" alt="Foto recente" class="w-full h-40 object-cover">
+                                <div class="overlay">
+                                    <div class="flex justify-between items-center">
+                                        <span>Retrato</span>
+                                        <a href="#" download class="text-white hover:text-earth-terracotta">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gallery-item rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=1470&q=80" alt="Foto recente" class="w-full h-40 object-cover">
+                                <div class="overlay">
+                                    <div class="flex justify-between items-center">
+                                        <span>Ensaio Casal</span>
+                                        <a href="#" download class="text-white hover:text-earth-terracotta">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gallery-item rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=687&q=80" alt="Foto recente" class="w-full h-40 object-cover">
+                                <div class="overlay">
+                                    <div class="flex justify-between items-center">
+                                        <span>Retrato</span>
+                                        <a href="#" download class="text-white hover:text-earth-terracotta">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="message" class="block text-sm font-medium mb-1">Mensagem</label>
-                            <textarea id="message" name="message" rows="4" class="w-full px-4 py-2 border border-earth-brown rounded focus:outline-none focus:ring-2 focus:ring-earth-olive"></textarea>
-                        </div>
-                        <button type="submit" class="w-full bg-earth-olive text-white px-6 py-2 rounded hover:bg-earth-brown transition font-medium">Enviar</button>
-                    </form>
+                    </div>
                 </div>
-                <div class="md:w-1/2">
-                    <div class="space-y-4">
-                        <div class="flex items-start">
-                            <i class="fas fa-envelope text-earth-terracotta mr-2 mt-1"></i>
-                            <span>contato@janaterraphoto.com</span>
+
+                <!-- Right Column -->
+                <div class="lg:w-5/12 space-y-8">
+                    <!-- Notifications -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-serif font-bold text-earth-olive">Notificações</h2>
+                            <button class="text-earth-terracotta hover:text-earth-brown">
+                                Marcar todas como lidas
+                            </button>
                         </div>
-                        <div class="flex items-start">
-                            <i class="fas fa-phone-alt text-earth-terracotta mr-2 mt-1"></i>
-                            <span>(XX) XXXX-XXXX</span>
+                        <div class="space-y-4">
+                            <div class="border-b pb-4">
+                                <div class="flex items-start">
+                                    <div class="bg-earth-beige p-3 rounded-full mr-3">
+                                        <i class="fas fa-images text-earth-terracotta"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Novas fotos disponíveis!</h3>
+                                        <p class="text-sm text-earth-brown">Sua sessão de casal já está disponível para visualização e download</p>
+                                        <p class="text-xs text-earth-olive mt-1">Hoje, 10:45</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-b pb-4">
+                                <div class="flex items-start">
+                                    <div class="bg-earth-beige p-3 rounded-full mr-3">
+                                        <i class="fas fa-calendar-check text-earth-terracotta"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Confirmação de sessão</h3>
+                                        <p class="text-sm text-earth-brown">Sua sessão infantil foi confirmada para 22/08/2025 às 10:00</p>
+                                        <p class="text-xs text-earth-olive mt-1">Ontem, 15:30</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pb-2">
+                                <div class="flex items-start">
+                                    <div class="bg-earth-beige p-3 rounded-full mr-3">
+                                        <i class="fas fa-gift text-earth-terracotta"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Promoção especial!</h3>
+                                        <p class="text-sm text-earth-brown">Desconto de 15% na próxima sessão ao indicar um amigo</p>
+                                        <p class="text-xs text-earth-olive mt-1">3 dias atrás</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex items-start">
-                            <i class="fas fa-map-marker-alt text-earth-terracotta mr-2 mt-1"></i>
-                            <span>[Sua cidade] - [Seu estado]</span>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-serif font-bold text-earth-olive mb-6">Estatísticas</h2>
+                        <div class="mb-8">
+                            <h3 class="font-bold mb-3">Sessões por Tipo</h3>
+                            <div class="h-40">
+                                <canvas id="sessionsChart"></canvas>
+                            </div>
                         </div>
-                        <div class="flex space-x-4 mt-6">
-                            <a href="#" class="text-earth-terracotta hover:text-earth-brown"><i class="fab fa-instagram fa-2x"></i></a>
-                            <a href="#" class="text-earth-terracotta hover:text-earth-brown"><i class="fab fa-whatsapp fa-2x"></i></a>
-                            <a href="#" class="text-earth-terracotta hover:text-earth-brown"><i class="fab fa-facebook fa-2x"></i></a>
-                            <a href="#" class="text-earth-terracotta hover:text-earth-brown"><i class="fab fa-pinterest fa-2x"></i></a>
-                        </div>
-                        <div class="mt-8 p-4 bg-white rounded-lg shadow">
-                            <h3 class="text-lg font-bold mb-2 text-earth-terracotta">Área do Cliente</h3>
-                            <p>Já é cliente? Acesse sua área exclusiva para ver suas fotos e gerenciar sessões.</p>
-                            <a href="dashboard.html" class="inline-block mt-3 bg-earth-olive text-white px-4 py-2 rounded hover:bg-earth-brown transition font-medium">
-                                <i class="fas fa-user mr-2"></i> Acessar Área
-                            </a>
+                        <div>
+                            <h3 class="font-bold mb-3">Fotos por Ano</h3>
+                            <div class="h-40">
+                                <canvas id="photosChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -342,124 +356,90 @@
     <footer class="bg-earth-brown text-white py-8">
         <div class="container mx-auto px-4 text-center">
             <p class="mb-4">&copy; 2025 Jana Terra Photo. Todos os direitos reservados.</p>
-            <div class="flex justify-center space-x-4 mb-4">
+            <div class="flex justify-center space-x-4">
                 <a href="#" class="hover:text-earth-beige"><i class="fab fa-instagram"></i></a>
                 <a href="#" class="hover:text-earth-beige"><i class="fab fa-whatsapp"></i></a>
                 <a href="#" class="hover:text-earth-beige"><i class="fab fa-facebook"></i></a>
                 <a href="#" class="hover:text-earth-beige"><i class="fab fa-pinterest"></i></a>
             </div>
-            <div class="mt-4">
-                <a href="dashboard.html" class="text-earth-beige hover:text-white inline-flex items-center">
-                    <i class="fas fa-user mr-2"></i> Área do Cliente
-                </a>
-            </div>
         </div>
     </footer>
 
     <script>
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-button').addEventListener('click', () => {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        });
-
-        // Form submission
-        document.getElementById('contact-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Mensagem enviada! Entraremos em contato em breve.');
-            e.target.reset();
-        });
-
-        // Portfolio filtering
-        const portfolioGallery = document.getElementById('portfolio-gallery');
-        const portfolioItems = [
-            { category: 'infantil', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=764&q=80', title: 'Bebê Lucas - 6 meses' },
-            { category: 'casais', image: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1374&q=80', title: 'Carolina e Pedro' },
-            { category: 'eventos', image: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1470&q=80', title: 'Festa de 1 ano' },
-            { category: 'infantil', image: 'https://images.unsplash.com/photo-1551650976-6de2bd0d8a59?auto=format&fit=crop&w=1470&q=80', title: 'Bebê Sofia' },
-            { category: 'casais', image: 'https://images.unsplash.com/photo-1533147670608-2a2f9775d3a4?auto=format&fit=crop&w=1470&q=80', title: 'Camila e João' },
-            { category: 'eventos', image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1469&q=80', title: 'Aniversário de 15 anos' },
-        ];
-
-        function renderPortfolio(category = 'all') {
-            portfolioGallery.innerHTML = '';
-            const filteredItems = category === 'all' ? portfolioItems : portfolioItems.filter(item => item.category === category);
-            filteredItems.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'gallery-item rounded-lg overflow-hidden shadow-md';
-                div.innerHTML = `
-                    <img src="${item.image}" alt="${item.title}" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h4 class="font-medium">${item.title}</h4>
-                    </div>
-                `;
-                portfolioGallery.appendChild(div);
-            });
-        }
-
-        document.querySelectorAll('.portfolio-filter').forEach(button => {
-            button.addEventListener('click', () => {
-                const category = button.dataset.category;
-                renderPortfolio(category);
-                document.querySelectorAll('.portfolio-filter').forEach(btn => {
-                    btn.classList.remove('bg-earth-olive', 'text-white');
-                    btn.classList.add('hover:bg-earth-beige');
-                });
-                button.classList.add('bg-earth-olive', 'text-white');
-                button.classList.remove('hover:bg-earth-beige');
-            });
-        });
-
-        renderPortfolio();
-
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                document.querySelector(targetId)?.scrollIntoView({ behavior: 'smooth' });
-                document.getElementById('mobile-menu').classList.add('hidden');
-            });
-        });
-
-        // Contact button scrolls to contact section
-        document.getElementById('contact-button').addEventListener('click', () => {
-            document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
-        });
-
-        // Client area button functionality
-        document.getElementById('client-area-btn').addEventListener('click', (e) => {
-            e.preventDefault();
-            document.getElementById('login-modal').style.display = 'flex';
-        });
-
-        // Close modal
-        document.getElementById('close-modal').addEventListener('click', () => {
-            document.getElementById('login-modal').style.display = 'none';
-        });
-
-        // Login form submission
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            
-            // Simulate login process
-            if(email && password) {
-                alert('Login realizado com sucesso! Redirecionando para sua área...');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1000);
-            } else {
-                alert('Por favor, preencha todos os campos!');
+        // Initialize Charts
+        const sessionsCtx = document.getElementById('sessionsChart').getContext('2d');
+        const sessionsChart = new Chart(sessionsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Casais', 'Infantil', 'Eventos', 'Família'],
+                datasets: [{
+                    data: [35, 25, 20, 20],
+                    backgroundColor: [
+                        '#7A9B76',
+                        '#D77A61',
+                        '#A38F72',
+                        '#F5E9D9'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15
+                        }
+                    }
+                }
             }
         });
 
-        // Close modal when clicking outside
-        window.addEventListener('click', (e) => {
-            if(e.target === document.getElementById('login-modal')) {
-                document.getElementById('login-modal').style.display = 'none';
+        const photosCtx = document.getElementById('photosChart').getContext('2d');
+        const photosChart = new Chart(photosCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025'],
+                datasets: [{
+                    label: 'Fotos',
+                    data: [65, 89, 120, 48],
+                    backgroundColor: '#7A9B76',
+                    borderRadius: 5,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
             }
+        });
+
+        // Notification handling
+        document.getElementById('notification-btn').addEventListener('click', function() {
+            const badge = this.querySelector('.notification-badge');
+            badge.textContent = '0';
+            badge.style.backgroundColor = '#7A9B76';
         });
     </script>
 </body>
