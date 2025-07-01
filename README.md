@@ -1,2 +1,2 @@
 # janaphotos
-# Dashbord
+# Dashboard
