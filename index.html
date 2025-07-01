@@ -1,0 +1,299 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jana Terra Photo - Fotografia profissional com sensibilidade, capturando momentos especiais com emoção.">
+    <title>Jana Terra Photo - Fotografia com Sensibilidade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap');
+        .hero-image {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 70vh;
+        }
+        .gallery-item {
+            transition: transform 0.3s ease;
+        }
+        .gallery-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            beige: '#F5E9D9',
+                            brown: '#A38F72',
+                            olive: '#7A9B76',
+                            terracotta: '#D77A61',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans bg-earth-beige text-earth-brown">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="text-2xl font-serif font-bold text-earth-olive">Jana Terra Photo</a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#home" class="hover:text-earth-terracotta transition">Início</a>
+                <a href="#about" class="hover:text-earth-terracotta transition">Sobre</a>
+                <a href="#services" class="hover:text-earth-terracotta transition">Serviços</a>
+                <a href="#portfolio" class="hover:text-earth-terracotta transition">Portfólio</a>
+                <a href="#contact" class="hover:text-earth-terracotta transition">Contato</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-earth-brown">
+                <i class="fas fa-2x fa-bars"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-2">
+                <a href="#home" class="hover:text-earth-terracotta py-2 border-b">Início</a>
+                <a href="#about" class="hover:text-earth-terracotta py-2 border-b">Sobre</a>
+                <a href="#services" class="hover:text-earth-terracotta py-2 border-b">Serviços</a>
+                <a href="#portfolio" class="hover:text-earth-terracotta py-2 border-b">Portfólio</a>
+                <a href="#contact" class="hover:text-earth-terracotta py-2 border-b">Contato</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-image flex items-center justify-center text-center text-white">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-5xl font-serif font-bold mb-4">Momentos com Sensibilidade</h1>
+            <p class="text-lg md:text-xl mb-6 max-w-2xl mx-auto">Fotografia profissional que captura a emoção dos seus momentos especiais.</p>
+            <button id="contact-button" class="bg-earth-terracotta hover:bg-earth-brown text-white px-6 py-2 rounded-full font-medium transition">Agendar Sessão</button>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-serif font-bold mb-6 text-earth-olive text-center">Sobre Jana Terra</h2>
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-6 md:mb-0 md:pr-6">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=688&q=80" alt="Jana Terra" class="rounded-lg shadow-md w-full">
+                </div>
+                <div class="md:w-1/2">
+                    <p class="text-lg mb-4">Olá, sou Jana! Fotógrafa apaixonada por capturar a essência de momentos reais, com um olhar sensível e delicado.</p>
+                    <p class="text-lg">Meu trabalho é mais do que fotos — é sobre preservar memórias que emocionam e atravessam gerações.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-12 bg-earth-beige">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-serif font-bold mb-8 text-center text-earth-olive">Serviços</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <h3 class="text-xl font-serif font-bold mb-3 text-earth-olive">Acompanhamento Infantil</h3>
+                    <p>Capturando os primeiros sorrisos e descobertas do seu bebê.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <h3 class="text-xl font-serif font-bold mb-3 text-earth-olive">Ensaios</h3>
+                    <p>Fotos que celebram o amor, a gravidez ou a família com emoção.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                    <h3 class="text-xl font-serif font-bold mb-3 text-earth-olive">Eventos</h3>
+                    <p>Registro completo de festas, formaturas e momentos especiais.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-serif font-bold mb-8 text-center text-earth-olive">Portfólio</h2>
+            <div class="flex justify-center mb-6 flex-wrap gap-2">
+                <button data-category="all" class="portfolio-filter px-4 py-2 text-sm font-medium rounded-l-lg border border-earth-olive bg-earth-olive text-white">Todos</button>
+                <button data-category="infantil" class="portfolio-filter px-4 py-2 text-sm font-medium border border-earth-olive hover:bg-earth-beige">Infantil</button>
+                <button data-category="casais" class="portfolio-filter px-4 py-2 text-sm font-medium border border-earth-olive hover:bg-earth-beige">Casais</button>
+                <button data-category="eventos" class="portfolio-filter px-4 py-2 text-sm font-medium border border-earth-olive hover:bg-earth-beige">Eventos</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="portfolio-gallery"></div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-12 bg-earth-beige">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-serif font-bold mb-8 text-center text-earth-olive">Entre em Contato</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="md:w-1/2">
+                    <form id="contact-form" class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium mb-1">Nome</label>
+                            <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-earth-brown rounded focus:outline-none focus:ring-2 focus:ring-earth-olive">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium mb-1">E-mail</label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-earth-brown rounded focus:outline-none focus:ring-2 focus:ring-earth-olive">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium mb-1">Mensagem</label>
+                            <textarea id="message" name="message" rows="4" class="w-full px-4 py-2 border border-earth-brown rounded focus:outline-none focus:ring-2 focus:ring-earth-olive"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-earth-olive text-white px-6 py-2 rounded hover:bg-earth-brown transition font-medium">Enviar</button>
+                    </form>
+                </div>
+                <div class="md:w-1/2">
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-envelope text-earth-terracotta mr-2"></i>
+                            <span>contato@janaterraphoto.com</span>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-phone-alt text-earth-terracotta mr-2"></i>
+                            <span>(XX) XXXX-XXXX</span>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-map-marker-alt text-earth-terracotta mr-2"></i>
+                            <span>[Sua cidade] - [Seu estado]</span>
+                        </div>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-earth-terracotta hover:text-earth-brown"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="text-earth-terracotta hover:text-earth-brown"><i class="fab fa-whatsapp"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-earth-brown text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-4">&copy; 2025 Jana Terra Photo. Todos os direitos reservados.</p>
+            <div class="flex justify-center space-x-4">
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Form submission
+        document.getElementById('contact-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Mensagem enviada! Entraremos em contato em breve.');
+            e.target.reset();
+        });
+
+        // Portfolio filtering
+        const portfolioGallery = document.getElementById('portfolio-gallery');
+        const portfolioItems = [
+            { category: 'infantil', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=764&q=80', title: 'Bebê Lucas - 6 meses' },
+            { category: 'casais', image: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1374&q=80', title: 'Carolina e Pedro' },
+            { category: 'eventos', image: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1470&q=80', title: 'Festa de 1 ano' },
+        ];
+
+        function renderPortfolio(category = 'all') {
+            portfolioGallery.innerHTML = '';
+            const filteredItems = category === 'all' ? portfolioItems : portfolioItems.filter(item => item.category === category);
+            filteredItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item rounded-lg overflow-hidden shadow-md';
+                div.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <h4 class="font-medium">${item.title}</h4>
+                    </div>
+                `;
+                portfolioGallery.appendChild(div);
+            });
+        }
+
+        document.querySelectorAll('.portfolio-filter').forEach(button => {
+            button.addEventListener('click', () => {
+                const category = button.dataset.category;
+                renderPortfolio(category);
+                document.querySelectorAll('.portfolio-filter').forEach(btn => {
+                    btn.classList.remove('bg-earth-olive', 'text-white');
+                    btn.classList.add('hover:bg-earth-beige');
+                });
+                button.classList.add('bg-earth-olive', 'text-white');
+                button.classList.remove('hover:bg-earth-beige');
+            });
+        });
+
+        renderPortfolio();
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                document.querySelector(targetId)?.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('mobile-menu').classList.add('hidden');
+            });
+        });
+
+        // Contact button scrolls to contact section
+        document.getElementById('contact-button').addEventListener('click', () => {
+            document.querySelector('#contact').scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
