@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Cliente - Jana Terra Photo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap');
+        
+        .dashboard-header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 40vh;
+        }
+        
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #D77A61;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .gallery-item {
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.02);
+        }
+        
+        .gallery-item .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover .overlay {
+            transform: translateY(0);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            beige: '#F5E9D9',
+                            brown: '#A38F72',
+                            olive: '#7A9B76',
+                            terracotta: '#D77A61',
+                            dark: '#5D534A'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-sans bg-earth-beige text-earth-dark">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="text-2xl font-serif font-bold text-earth-olive">Jana Terra Photo</a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="hover:text-earth-terracotta transition">Início</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Sessões</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Galeria</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Histórico</a>
+                <a href="#" class="hover:text-earth-terracotta transition">Configurações</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button id="notification-btn" class="text-earth-dark hover:text-earth-terracotta">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+                <div class="relative">
+                    <button id="profile-btn" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-earth-olive flex items-center justify-center text-white">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="hidden md:inline">Maria Silva</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header flex items-center justify-center text-center text-white">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-serif font-bold mb-4">Área do Cliente</h1>
+            <p class="text-lg md:text-xl mb-6 max-w-2xl mx-auto">Bem-vinda, Maria! Aqui você gerencia suas sessões e fotos</p>
+        </div>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <section class="py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="stat-card bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-earth-terracotta mb-2">2</div>
+                    <div class="text-lg font-medium text-earth-olive">Sessões Agendadas</div>
+                </div>
+                <div class="stat-card bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-earth-terracotta mb-2">48</div>
+                    <div class="text-lg font-medium text-earth-olive">Fotos Disponíveis</div>
+                </div>
+                <div class="stat-card bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-earth-terracotta mb-2">3</div>
+                    <div class="text-lg font-medium text-earth-olive">Albuns Criados</div>
+                </div>
+                <div class="stat-card bg-white rounded-lg shadow-md p-6 text-center">
+                    <div class="text-3xl font-bold text-earth-terracotta mb-2">12</div>
+                    <div class="text-lg font-medium text-earth-olive">Fotos Favoritas</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Dashboard Content -->
+    <section class="py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Left Column -->
+                <div class="lg:w-7/12 space-y-8">
+                    <!-- Upcoming Sessions -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-serif font-bold text-earth-olive">Próximas Sessões</h2>
+                            <button class="text-earth-terracotta hover:text-earth-brown">
+                                <i class="fas fa-plus"></i> Agendar Nova
+                            </button>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-lg">Sessão de Casal</h3>
+                                        <p class="text-earth-terracotta flex items-center">
+                                            <i class="fas fa-calendar-alt mr-2"></i> 15 de Julho de 2025
+                                        </p>
+                                        <p class="text-earth-brown flex items-center">
+                                            <i class="fas fa-clock mr-2"></i> 14:00 - 16:00
+                                        </p>
+                                        <p class="text-earth-olive flex items-center">
+                                            <i class="fas fa-map-marker-alt mr-2"></i> Parque Central
+                                        </p>
+                                    </div>
+                                    <span class="bg-earth-beige text-earth-terracotta px-3 py-1 rounded-full text-sm">Confirmada</span>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="bg-earth-terracotta hover:bg-earth-brown text-white px-4 py-2 rounded mr-2">
+                                        <i class="fas fa-edit mr-1"></i> Editar
+                                    </button>
+                                    <button class="border border-earth-terracotta text-earth-terracotta hover:bg-earth-terracotta hover:text-white px-4 py-2 rounded">
+                                        <i class="fas fa-times mr-1"></i> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-lg">Acompanhamento Infantil</h3>
+                                        <p class="text-earth-terracotta flex items-center">
+                                            <i class="fas fa-calendar-alt mr-2"></i> 22 de Agosto de 2025
+                                        </p>
+                                        <p class="text-earth-brown flex items-center">
+                                            <i class="fas fa-clock mr-2"></i> 10:00 - 11:30
+                                        </p>
+                                        <p class="text-earth-olive flex items-center">
+                                            <i class="fas fa-map-marker-alt mr-2"></i> Estúdio Jana Terra
+                                        </p>
+                                    </div>
+                                    <span class="bg-earth-beige text-earth-olive px-3 py-1 rounded-full text-sm">Agendada</span>
+                                </div>
+                                <div class="mt-3">
+                                    <button class="bg-earth-terracotta hover:bg-earth-brown text-white px-4 py-2 rounded mr-2">
+                                        <i class="fas fa-edit mr-1"></i> Editar
+                                    </button>
+                                    <button class="border border-earth-terracotta text-earth-terracotta hover:bg-earth-terracotta hover:text-white px-4 py-2 rounded">
+                                        <i class="fas fa-times mr-1"></i> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Photos -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-serif font-bold text-earth-olive">Fotos Recentes</h2>
+                            <button class="text-earth-terracotta hover:text-earth-brown">
+                                Ver todas <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            <div class="gallery-item rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=688&q=80" alt="Foto recente" class="w-full h-40 object-cover">
+                                <div class="overlay">
+                                    <div class="flex justify-between items-center">
+                                        <span>Sessão Família</span>
+                                        <a href="#" download class="text-white hover:text-earth-terracotta">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gallery-item rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=687&q=80" alt="Foto recente" class="w-full h-40 object-cover">
+                                <div class="overlay">
+                                    <div class="flex justify-between items-center">
+                                        <span>Retrato</span>
+                                        <a href="#" download class="text-white hover:text-earth-terracotta">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gallery-item rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=1470&q=80" alt="Foto recente" class="w-full h-40 object-cover">
+                                <div class="overlay">
+                                    <div class="flex justify-between items-center">
+                                        <span>Ensaio Casal</span>
+                                        <a href="#" download class="text-white hover:text-earth-terracotta">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="gallery-item rounded-lg overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=687&q=80" alt="Foto recente" class="w-full h-40 object-cover">
+                                <div class="overlay">
+                                    <div class="flex justify-between items-center">
+                                        <span>Retrato</span>
+                                        <a href="#" download class="text-white hover:text-earth-terracotta">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="lg:w-5/12 space-y-8">
+                    <!-- Notifications -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-serif font-bold text-earth-olive">Notificações</h2>
+                            <button class="text-earth-terracotta hover:text-earth-brown">
+                                Marcar todas como lidas
+                            </button>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="border-b pb-4">
+                                <div class="flex items-start">
+                                    <div class="bg-earth-beige p-3 rounded-full mr-3">
+                                        <i class="fas fa-images text-earth-terracotta"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Novas fotos disponíveis!</h3>
+                                        <p class="text-sm text-earth-brown">Sua sessão de casal já está disponível para visualização e download</p>
+                                        <p class="text-xs text-earth-olive mt-1">Hoje, 10:45</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-b pb-4">
+                                <div class="flex items-start">
+                                    <div class="bg-earth-beige p-3 rounded-full mr-3">
+                                        <i class="fas fa-calendar-check text-earth-terracotta"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Confirmação de sessão</h3>
+                                        <p class="text-sm text-earth-brown">Sua sessão infantil foi confirmada para 22/08/2025 às 10:00</p>
+                                        <p class="text-xs text-earth-olive mt-1">Ontem, 15:30</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pb-2">
+                                <div class="flex items-start">
+                                    <div class="bg-earth-beige p-3 rounded-full mr-3">
+                                        <i class="fas fa-gift text-earth-terracotta"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Promoção especial!</h3>
+                                        <p class="text-sm text-earth-brown">Desconto de 15% na próxima sessão ao indicar um amigo</p>
+                                        <p class="text-xs text-earth-olive mt-1">3 dias atrás</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-serif font-bold text-earth-olive mb-6">Estatísticas</h2>
+                        <div class="mb-8">
+                            <h3 class="font-bold mb-3">Sessões por Tipo</h3>
+                            <div class="h-40">
+                                <canvas id="sessionsChart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold mb-3">Fotos por Ano</h3>
+                            <div class="h-40">
+                                <canvas id="photosChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-earth-brown text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-4">&copy; 2025 Jana Terra Photo. Todos os direitos reservados.</p>
+            <div class="flex justify-center space-x-4">
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-pinterest"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Charts
+        const sessionsCtx = document.getElementById('sessionsChart').getContext('2d');
+        const sessionsChart = new Chart(sessionsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Casais', 'Infantil', 'Eventos', 'Família'],
+                datasets: [{
+                    data: [35, 25, 20, 20],
+                    backgroundColor: [
+                        '#7A9B76',
+                        '#D77A61',
+                        '#A38F72',
+                        '#F5E9D9'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+
+        const photosCtx = document.getElementById('photosChart').getContext('2d');
+        const photosChart = new Chart(photosCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2022', '2023', '2024', '2025'],
+                datasets: [{
+                    label: 'Fotos',
+                    data: [65, 89, 120, 48],
+                    backgroundColor: '#7A9B76',
+                    borderRadius: 5,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Notification handling
+        document.getElementById('notification-btn').addEventListener('click', function() {
+            const badge = this.querySelector('.notification-badge');
+            badge.textContent = '0';
+            badge.style.backgroundColor = '#7A9B76';
+        });
+    </script>
+</body>
+</html>
