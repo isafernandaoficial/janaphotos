@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendar Sessão - Jana Terra Photo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap');
+        
+        :root {
+            --earth-beige: #F5E9D9;
+            --earth-brown: #A38F72;
+            --earth-olive: #7A9B76;
+            --earth-terracotta: #D77A61;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f9f9f9;
+        }
+        
+        .booking-header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+        }
+        
+        .form-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .form-control {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--earth-olive);
+            box-shadow: 0 0 0 3px rgba(122, 155, 118, 0.2);
+            outline: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--earth-olive);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #6a8a66;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            border: 1px solid var(--earth-olive);
+            color: var(--earth-olive);
+            transition: all 0.3s;
+        }
+        
+        .btn-outline:hover {
+            background-color: rgba(122, 155, 118, 0.1);
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #eaeaea;
+            z-index: 1;
+        }
+        
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            border: 2px solid #eaeaea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step.active {
+            border-color: var(--earth-olive);
+            background-color: var(--earth-olive);
+            color: white;
+        }
+        
+        .step.completed {
+            border-color: var(--earth-olive);
+            background-color: var(--earth-olive);
+            color: white;
+        }
+        
+        .step.completed::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+        }
+        
+        .calendar-day {
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .calendar-day:hover {
+            background-color: rgba(122, 155, 118, 0.1);
+        }
+        
+        .calendar-day.selected {
+            background-color: var(--earth-olive);
+            color: white;
+        }
+        
+        .calendar-day.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .time-slot {
+            border: 1px solid #eaeaea;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .time-slot:hover {
+            border-color: var(--earth-olive);
+        }
+        
+        .time-slot.selected {
+            background-color: var(--earth-olive);
+            border-color: var(--earth-olive);
+            color: white;
+        }
+        
+        .time-slot.unavailable {
+            background-color: #f5f5f5;
+            color: #ccc;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            beige: '#F5E9D9',
+                            brown: '#A38F72',
+                            olive: '#7A9B76',
+                            terracotta: '#D77A61',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-earth-beige">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-serif font-bold text-earth-olive">Jana Terra Photo</a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="index.html" class="hover:text-earth-terracotta transition">Início</a>
+                <a href="index.html#about" class="hover:text-earth-terracotta transition">Sobre</a>
+                <a href="index.html#services" class="hover:text-earth-terracotta transition">Serviços</a>
+                <a href="index.html#portfolio" class="hover:text-earth-terracotta transition">Portfólio</a>
+                <a href="index.html#contact" class="hover:text-earth-terracotta transition">Contato</a>
+                <a href="client-dashboard.html" class="hover:text-earth-terracotta transition">Área do Cliente</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-earth-brown">
+                <i class="fas fa-2x fa-bars"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-2">
+                <a href="index.html" class="hover:text-earth-terracotta py-2 border-b">Início</a>
+                <a href="index.html#about" class="hover:text-earth-terracotta py-2 border-b">Sobre</a>
+                <a href="index.html#services" class="hover:text-earth-terracotta py-2 border-b">Serviços</a>
+                <a href="index.html#portfolio" class="hover:text-earth-terracotta py-2 border-b">Portfólio</a>
+                <a href="index.html#contact" class="hover:text-earth-terracotta py-2 border-b">Contato</a>
+                <a href="client-dashboard.html" class="hover:text-earth-terracotta py-2 border-b">Área do Cliente</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Booking Header -->
+    <div class="booking-header flex items-center justify-center text-center text-white">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-serif font-bold mb-4">Agendar Sessão</h1>
+            <p class="text-lg md:text-xl mb-6 max-w-2xl mx-auto">Preencha os dados abaixo para reservar sua sessão fotográfica</p>
+        </div>
+    </div>
+
+    <!-- Booking Process -->
+    <section class="py-12">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step-1">
+                    <span>1</span>
+                </div>
+                <div class="step" id="step-2">
+                    <span>2</span>
+                </div>
+                <div class="step" id="step-3">
+                    <span>3</span>
+                </div>
+                <div class="step" id="step-4">
+                    <span>4</span>
+                </div>
+            </div>
+            
+            <!-- Form Card -->
+            <div class="form-card p-6 md:p-8">
+                <!-- Step 1: Session Type -->
+                <div id="step1-content" class="step-content active">
+                    <h2 class="text-2xl font-serif font-bold text-earth-olive mb-6">Escolha o Tipo de Sessão</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="session-type border border-gray-200 rounded-lg p-6 cursor-pointer transition hover:border-earth-olive hover:shadow-md">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-earth-beige rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-heart text-earth-terracotta text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-earth-dark">Sessão de Casal</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Captura momentos especiais do seu relacionamento com sensibilidade e arte.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-earth-olive">R$ 800,00</span>
+                                <span class="text-sm text-gray-500">2 horas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="session-type border border-gray-200 rounded-lg p-6 cursor-pointer transition hover:border-earth-olive hover:shadow-md">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-earth-beige rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-baby text-earth-terracotta text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-earth-dark">Sessão Infantil</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Registra cada fase do desenvolvimento do seu bebê com ternura e naturalidade.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-earth-olive">R$ 600,00</span>
+                                <span class="text-sm text-gray-500">1.5 horas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="session-type border border-gray-200 rounded-lg p-6 cursor-pointer transition hover:border-earth-olive hover:shadow-md">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-earth-beige rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-users text-earth-terracotta text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-earth-dark">Sessão Família</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Documenta a conexão e amor da sua família em momentos espontâneos e planejados.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-earth-olive">R$ 900,00</span>
+                                <span class="text-sm text-gray-500">2 horas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="session-type border border-gray-200 rounded-lg p-6 cursor-pointer transition hover:border-earth-olive hover:shadow-md">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 bg-earth-beige rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-baby-carriage text-earth-terracotta text-xl"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-earth-dark">Sessão Gestante</h3>
+                            </div>
+                            <p class="text-gray-600 mb-4">Celebra a beleza e a espera pelo novo membro da família com delicadeza.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-earth-olive">R$ 700,00</span>
+                                <span class="text-sm text-gray-500">1.5 horas</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button id="next-to-step2" class="btn btn-primary px-6 py-3">
+                            Próximo <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Date Selection -->
+                <div id="step2-content" class="step-content hidden">
+                    <h2 class="text-2xl font-serif font-bold text-earth-olive mb-6">Escolha a Data</h2>
+                    
+                    <div class="mb-6">
+                        <label class="block text-lg font-medium text-earth-brown mb-3">Selecione o mês:</label>
+                        <div class="flex items-center space-x-4">
+                            <button class="text-earth-terracotta hover:text-earth-brown">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <h3 class="text-xl font-bold text-earth-dark">Julho 2025</h3>
+                            <button class="text-earth-terracotta hover:text-earth-brown">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-7 gap-2 mb-2">
+                        <div class="text-center font-medium text-earth-brown">Dom</div>
+                        <div class="text-center font-medium text-earth-brown">Seg</div>
+                        <div class="text-center font-medium text-earth-brown">Ter</div>
+                        <div class="text-center font-medium text-earth-brown">Qua</div>
+                        <div class="text-center font-medium text-earth-brown">Qui</div>
+                        <div class="text-center font-medium text-earth-brown">Sex</div>
+                        <div class="text-center font-medium text-earth-brown">Sáb</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-7 gap-2">
+                        <div class="calendar-day disabled">29</div>
+                        <div class="calendar-day disabled">30</div>
+                        <div class="calendar-day">1</div>
+                        <div class="calendar-day">2</div>
+                        <div class="calendar-day">3</div>
+                        <div class="calendar-day">4</div>
+                        <div class="calendar-day">5</div>
+                        <div class="calendar-day">6</div>
+                        <div class="calendar-day">7</div>
+                        <div class="calendar-day">8</div>
+                        <div class="calendar-day">9</div>
+                        <div class="calendar-day">10</div>
+                        <div class="calendar-day">11</div>
+                        <div class="calendar-day">12</div>
+                        <div class="calendar-day">13</div>
+                        <div class="calendar-day">14</div>
+                        <div class="calendar-day selected">15</div>
+                        <div class="calendar-day">16</div>
+                        <div class="calendar-day">17</div>
+                        <div class="calendar-day">18</div>
+                        <div class="calendar-day">19</div>
+                        <div class="calendar-day">20</div>
+                        <div class="calendar-day">21</div>
+                        <div class="calendar-day">22</div>
+                        <div class="calendar-day">23</div>
+                        <div class="calendar-day">24</div>
+                        <div class="calendar-day">25</div>
+                        <div class="calendar-day">26</div>
+                        <div class="calendar-day">27</div>
+                        <div class="calendar-day">28</div>
+                        <div class="calendar-day">29</div>
+                        <div class="calendar-day">30</div>
+                        <div class="calendar-day">31</div>
+                        <div class="calendar-day disabled">1</div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button id="back-to-step1" class="btn btn-outline px-6 py-3">
+                            <i class="fas fa-arrow-left mr-2"></i> Voltar
+                        </button>
+                        <button id="next-to-step3" class="btn btn-primary px-6 py-3">
+                            Próximo <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Time Selection -->
+                <div id="step3-content" class="step-content hidden">
+                    <h2 class="text-2xl font-serif font-bold text-earth-olive mb-6">Escolha o Horário</h2>
+                    <p class="text-gray-600 mb-6">Você está agendando para: <span class="font-bold text-earth-dark">Sessão de Casal - 15/07/2025</span></p>
+                    
+                    <div class="mb-6">
+                        <label class="block text-lg font-medium text-earth-brown mb-3">Horários disponíveis:</label>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <div class="time-slot unavailable">09:00 - 10:00</div>
+                            <div class="time-slot">10:00 - 11:00</div>
+                            <div class="time-slot">11:00 - 12:00</div>
+                            <div class="time-slot">13:00 - 14:00</div>
+                            <div class="time-slot selected">14:00 - 16:00</div>
+                            <div class="time-slot">16:00 - 18:00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-lg font-medium text-earth-brown mb-3">Local da Sessão:</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="location-option border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-earth-olive">
+                                <h3 class="font-bold text-earth-dark mb-1">Estúdio Jana Terra</h3>
+                                <p class="text-gray-600 text-sm">Rua das Flores, 123 - São Paulo/SP</p>
+                            </div>
+                            <div class="location-option border border-earth-olive rounded-lg p-4 cursor-pointer bg-earth-beige">
+                                <h3 class="font-bold text-earth-dark mb-1">Externo (a combinar)</h3>
+                                <p class="text-gray-600 text-sm">Local a ser definido com a fotógrafa</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button id="back-to-step2" class="btn btn-outline px-6 py-3">
+                            <i class="fas fa-arrow-left mr-2"></i> Voltar
+                        </button>
+                        <button id="next-to-step4" class="btn btn-primary px-6 py-3">
+                            Próximo <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Personal Info -->
+                <div id="step4-content" class="step-content hidden">
+                    <h2 class="text-2xl font-serif font-bold text-earth-olive mb-6">Seus Dados</h2>
+                    <p class="text-gray-600 mb-6">Confirme seus dados para finalizar o agendamento</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="form-group">
+                            <label class="block text-gray-700 mb-2">Nome Completo</label>
+                            <input type="text" class="form-control w-full" value="Maria Silva" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-gray-700 mb-2">E-mail</label>
+                            <input type="email" class="form-control w-full" value="maria@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-gray-700 mb-2">Telefone</label>
+                            <input type="tel" class="form-control w-full" value="(11) 98765-4321" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="block text-gray-700 mb-2">CPF (opcional)</label>
+                            <input type="text" class="form-control w-full" placeholder="Para emissão de nota fiscal">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-gray-700 mb-2">Observações (opcional)</label>
+                        <textarea class="form-control w-full" rows="3" placeholder="Alguma informação adicional que devemos saber?"></textarea>
+                    </div>
+                    
+                    <div class="bg-earth-beige rounded-lg p-4 mb-6">
+                        <h3 class="font-bold text-earth-dark mb-2">Resumo do Agendamento</h3>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-600">Tipo de Sessão:</span>
+                            <span class="font-medium">Sessão de Casal</span>
+                        </div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-600">Data e Horário:</span>
+                            <span class="font-medium">15/07/2025 - 14:00 às 16:00</span>
+                        </div>
+                        <div class="flex justify-between mb-1">
+                            <span class="text-gray-600">Local:</span>
+                            <span class="font-medium">Estúdio Jana Terra</span>
+                        </div>
+                        <div class="flex justify-between mt-3 pt-3 border-t border-earth-beige">
+                            <span class="text-gray-600">Valor Total:</span>
+                            <span class="font-bold text-earth-olive text-lg">R$ 800,00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start mb-6">
+                        <input type="checkbox" id="terms" class="mt-1 mr-2" required>
+                        <label for="terms" class="text-gray-700 text-sm">
+                            Concordo com os <a href="#" class="text-earth-olive hover:underline">Termos de Serviço</a> e 
+                            <a href="#" class="text-earth-olive hover:underline">Política de Cancelamento</a>. Entendo que 
+                            um sinal de 30% será necessário para confirmar o agendamento.
+                        </label>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button id="back-to-step3" class="btn btn-outline px-6 py-3">
+                            <i class="fas fa-arrow-left mr-2"></i> Voltar
+                        </button>
+                        <button id="complete-booking" class="btn btn-primary px-6 py-3">
+                            <i class="fas fa-calendar-check mr-2"></i> Confirmar Agendamento
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Confirmation Step (hidden initially) -->
+                <div id="confirmation-content" class="step-content hidden text-center py-8">
+                    <div class="bg-earth-beige rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-check text-earth-olive text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-serif font-bold text-earth-olive mb-4">Agendamento Confirmado!</h2>
+                    <p class="text-gray-600 mb-6">
+                        Sua sessão fotográfica foi agendada com sucesso. Enviamos os detalhes para 
+                        <span class="font-medium">maria@email.com</span>.
+                    </p>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-6 max-w-md mx-auto mb-8">
+                        <h3 class="font-bold text-earth-dark mb-3">Detalhes do Agendamento</h3>
+                        <div class="text-left space-y-2">
+                            <p><span class="text-gray-600">Código:</span> <span class="font-medium">#JT20250715-142</span></p>
+                            <p><span class="text-gray-600">Data:</span> <span class="font-medium">15/07/2025</span></p>
+                            <p><span class="text-gray-600">Horário:</span> <span class="font-medium">14:00 - 16:00</span></p>
+                            <p><span class="text-gray-600">Local:</span> <span class="font-medium">Estúdio Jana Terra</span></p>
+                            <p><span class="text-gray-600">Valor:</span> <span class="font-bold text-earth-olive">R$ 800,00</span></p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-6">
+                        Em até 24 horas você receberá um e-mail com as instruções para pagamento do sinal e confirmação definitiva.
+                    </p>
+                    
+                    <div class="flex justify-center space-x-4">
+                        <a href="client-dashboard.html" class="btn btn-outline px-6 py-3">
+                            <i class="fas fa-user mr-2"></i> Área do Cliente
+                        </a>
+                        <a href="index.html" class="btn btn-primary px-6 py-3">
+                            <i class="fas fa-home mr-2"></i> Página Inicial
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-earth-brown text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-4">&copy; 2025 Jana Terra Photo. Todos os direitos reservados.</p>
+            <div class="flex justify-center space-x-4">
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-whatsapp"></i></a>
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="hover:text-earth-beige"><i class="fab fa-pinterest"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // Step navigation
+        let currentStep = 1;
+        
+        function updateStepIndicator() {
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step-${i}`);
+                if (i < currentStep) {
+                    step.classList.remove('active');
+                    step.classList.add('completed');
+                } else if (i === currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('completed');
+                } else {
+                    step.classList.remove('active', 'completed');
+                    step.innerHTML = `<span>${i}</span>`;
+                }
+            }
+        }
+        
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('active');
+            });
+            
+            const stepContent = document.getElementById(`step${stepNumber}-content`);
+            if (stepContent) {
+                stepContent.classList.remove('hidden');
+                stepContent.classList.add('active');
+            }
+            
+            currentStep = stepNumber;
+            updateStepIndicator();
+        }
+        
+        // Navigation between steps
+        document.getElementById('next-to-step2').addEventListener('click', () => {
+            // Here you would validate step 1 before proceeding
+            showStep(2);
+        });
+        
+        document.getElementById('next-to-step3').addEventListener('click', () => {
+            // Validate step 2 before proceeding
+            showStep(3);
+        });
+        
+        document.getElementById('next-to-step4').addEventListener('click', () => {
+            // Validate step 3 before proceeding
+            showStep(4);
+        });
+        
+        document.getElementById('back-to-step1').addEventListener('click', () => {
+            showStep(1);
+        });
+        
+        document.getElementById('back-to-step2').addEventListener('click', () => {
+            showStep(2);
+        });
+        
+        document.getElementById('back-to-step3').addEventListener('click', () => {
+            showStep(3);
+        });
+        
+        // Session type selection
+        document.querySelectorAll('.session-type').forEach(type => {
+            type.addEventListener('click', function() {
+                document.querySelectorAll('.session-type').forEach(t => {
+                    t.classList.remove('border-earth-olive', 'bg-earth-beige');
+                });
+                this.classList.add('border-earth-olive', 'bg-earth-beige');
+            });
+        });
+        
+        // Calendar day selection
+        document.querySelectorAll('.calendar-day:not(.disabled)').forEach(day => {
+            day.addEventListener('click', function() {
+                document.querySelectorAll('.calendar-day').forEach(d => {
+                    d.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+        
+        // Time slot selection
+        document.querySelectorAll('.time-slot:not(.unavailable)').forEach(slot => {
+            slot.addEventListener('click', function() {
+                document.querySelectorAll('.time-slot').forEach(s => {
+                    s.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+        
+        // Location selection
+        document.querySelectorAll('.location-option').forEach(location => {
+            location.addEventListener('click', function() {
+                document.querySelectorAll('.location-option').forEach(l => {
+                    l.classList.remove('border-earth-olive', 'bg-earth-beige');
+                });
+                this.classList.add('border-earth-olive', 'bg-earth-beige');
+            });
+        });
+        
+        // Complete booking
+        document.getElementById('complete-booking').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            const termsChecked = document.getElementById('terms').checked;
+            if (!termsChecked) {
+                alert('Por favor, aceite os termos e condições para continuar.');
+                return;
+            }
+            
+            // Here you would normally submit the form to the server
+            // For this demo, we'll just show the confirmation
+            
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('active');
+            });
+            
+            document.getElementById('confirmation-content').classList.remove('hidden');
+            document.getElementById('confirmation-content').classList.add('active');
+            
+            // Mark all steps as completed
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step-${i}`);
+                step.classList.remove('active');
+                step.classList.add('completed');
+            }
+        });
+        
+        // Initialize
+        updateStepIndicator();
+    </script>
+</body>
+</html>
